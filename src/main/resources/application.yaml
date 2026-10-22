@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis123
+      timeout: 2s
+
+  cloud:
+    gateway:
+      routes:
+        - id: event-platform
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/events/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1000
+                redis-rate-limiter.burstCapacity: 2000
+
+jwt:
+  secret: "sua_chave_super_secreta_e_longa_aqui_com_no_minimo_32_bytes_para_garantir_seguranca"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+logging:
+  level:
+    root: INFO
